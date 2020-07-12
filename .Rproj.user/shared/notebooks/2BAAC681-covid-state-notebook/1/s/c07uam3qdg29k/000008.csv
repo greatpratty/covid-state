@@ -1,0 +1,5 @@
+"0","rawData <- read.csv(""daily.csv"", stringsAsFactors = FALSE)"
+"0",""
+"0","rawData$date <- as.character(rawData$date)"
+"0","# Fix the date field"
+"0","rawData$FixedDate <- as.Date(rawData$date, format = ""%Y%m%d"")"

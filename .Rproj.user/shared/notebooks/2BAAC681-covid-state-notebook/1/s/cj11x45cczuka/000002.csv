@@ -1,0 +1,4 @@
+"0","dataVirginia   <- subset(rawData, "
+"0","                         rawData$'state' == ""VA"")"
+"0","dataFlorida   <- subset(rawData, "
+"0","                         rawData$'state' == ""FL"")"

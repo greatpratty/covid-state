@@ -1,0 +1,4 @@
+"0","totalCases_Central_Plot = ggplot(data = dataVirginia, aes(x = FixedDate, y = positiveIncrease)) + "
+"0","  geom_line()"
+"0","print(totalCases_Central_Plot + "
+"0","        ggtitle(""Total Cases, Central Virginia""))"

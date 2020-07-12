@@ -1,0 +1,5 @@
+"0","totalCases_vs_Deaths_Plot = ggplot() + "
+"0","  geom_line(data = dataVirginia, aes(x = FixedDate, y = positiveIncrease), color='red') + "
+"0","  geom_line(data = dataFlorida, aes(x = FixedDate, y = positiveIncrease), color='green') "
+"0","print(totalCases_vs_Deaths_Plot + "
+"0","        ggtitle(""Total Cases Over Time in Virginia""))"

@@ -1,0 +1,6 @@
+"0","totalCases_Eastern_Plot <- ggplot() + "
+"0","  geom_line(data = dataVirginia, aes(x = FixedDate, y = positiveIncrease), color='blue') + "
+"0","  geom_line(data = dataVirginia, aes(x = FixedDate, y = deathIncrease), color = 'green') "
+"0","print(totalCases_Eastern_Plot + "
+"0","        ggtitle(""Total Cases vs. Total Deaths, Eastern Virginia""))"
+"0",""
