@@ -3,7 +3,7 @@
     "path": "~/code/covid-states/covid-state-notebook.Rmd",
     "project_path": "covid-state-notebook.Rmd",
     "type": "r_markdown",
-    "hash": "168939390",
+    "hash": "744790963",
     "contents": "",
     "dirty": false,
     "created": 1594585583444.0,
@@ -12,15 +12,15 @@
     "properties": {
         "tempName": "Untitled1",
         "chunk_output_type": "inline",
-        "cursorPosition": "117,89",
-        "scrollLine": "103"
+        "cursorPosition": "200,40",
+        "scrollLine": "182"
     },
     "folds": "",
-    "lastKnownWriteTime": 1594595745,
+    "lastKnownWriteTime": 1594762440,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1594595745724,
+    "last_content_update": 1594762440604,
     "read_only": false,
     "read_only_alternatives": []
 }

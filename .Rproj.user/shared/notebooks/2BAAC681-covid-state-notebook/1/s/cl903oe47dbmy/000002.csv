@@ -1,4 +1,0 @@
-"0","totalDeaths_Eastern_Plot = ggplot(data = dataVirginia, aes(x = FixedDate, y=deathIncrease)) + "
-"0","  geom_line()"
-"0","print(totalDeaths_Eastern_Plot + "
-"0","        ggtitle(""Total Deaths, Eastern Virginia""))"
