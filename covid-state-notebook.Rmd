@@ -14,7 +14,7 @@ output:
 The purpose of this notebook is to show the analysis of Covid data using data from all of the states
 
 Author: John Pratt
-Data Updated: 7/17/2020
+Data Updated: 7/22/2020
 
 Data can be found here:
 
