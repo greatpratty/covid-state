@@ -1,6 +1,0 @@
-"0","VAtotalCases            = head(dataVirginia$positive,1)"
-"0","VAtotalHospitalizations = head(dataVirginia$hospitalizedCumulative,1)"
-"0","VAtotalDeaths           = head(dataVirginia$death,1)"
-"0","FLtotalCases            = head(dataFlorida$positive,1)"
-"0","FLtotalHospitalizations = head(dataFlorida$hospitalizedCumulative,1)"
-"0","FLtotalDeaths           = head(dataFlorida$death,1)"

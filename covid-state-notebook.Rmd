@@ -1,5 +1,5 @@
 ---
-title: "Covid Multi-State Data Notebook"
+title: "Covid Multi-State Data Analysis"
 output:
   pdf_document: default
   html_document:
@@ -9,16 +9,34 @@ output:
 ---
 
 ### Goal
+
+
 The purpose of this notebook is to show the analysis of Covid data using data from all of the states
 
 Author: John Pratt
+Data Updated: 7/17/2020
 
 Data can be found here:
 
 https://covidtracking.com/data
 
-```{r echo=FALSE}
+### Methodology
+
+The CDC has released the IFR (Infection fatality rate) of 0.26%
+
+Reference: https://reason.com/2020/06/28/cdc-antibody-studies-confirm-huge-gap-between-covid-19-infections-and-known-cases/  
+
+Using this we can calculate the number of people who have actually had Covid because we know the number of deaths.
+
+(number of individuals who have had covid) = total deaths / .0026
+
+We can calculate the percentage immune by dividing the (number of individuals who have had it) / (total population)
+
+
+```{r echo=FALSE, warning=FALSE}
 library(ggplot2)
+library(grid)
+library(directlabels)
 ```
 
 ### Preparing the data
@@ -31,22 +49,47 @@ rawData <- read.csv("daily.csv", stringsAsFactors = FALSE)
 rawData$date <- as.character(rawData$date)
 # Fix the date field
 rawData$FixedDate <- as.Date(rawData$date, format = "%Y%m%d")
+
+# We also need to read in the data for the US
+dataUS <- read.csv("daily-us.csv", stringsAsFactors = FALSE)
+
+dataUS$date <- as.character(dataUS$date)
+# Fix the date field
+dataUS$FixedDate <- as.Date(dataUS$date, format = "%Y%m%d")
 ```
 
 Now we build a dataframe for just the states we are interested in. 
 
 
 ```{r}
-dataVirginia   <- subset(rawData, 
-                         rawData$'state' == "VA")
-dataFlorida   <- subset(rawData, 
-                         rawData$'state' == "FL")
-dataNewYork   <- subset(rawData, 
-                         rawData$'state' == "NY")
-dataCali   <- subset(rawData, 
-                         rawData$'state' == "CA")
-dataWashington   <- subset(rawData, 
-                         rawData$'state' == "WA")
+dataVirginia             <- subset(rawData, 
+                           rawData$'state' == "VA")
+dataVirginia$numberHadit <- dataVirginia$death / 0.0026
+dataVirginia$percentImmunity    <- (dataVirginia$numberHadit / 8536000) * 100
+dataFlorida              <- subset(rawData, 
+                           rawData$'state' == "FL")
+dataFlorida$numberHadit <- dataFlorida$death / 0.0026
+dataFlorida$percentImmunity    <- (dataFlorida$numberHadit / 21480000) * 100
+dataNewYork              <- subset(rawData, 
+                           rawData$'state' == "NY")
+dataNewYork$numberHadit <- dataNewYork$death / 0.0026
+dataNewYork$percentImmunity    <- (dataNewYork$numberHadit / 19450000) * 100
+dataCali                 <- subset(rawData, 
+                           rawData$'state' == "CA")
+dataCali$numberHadit <- dataCali$death / 0.0026
+dataCali$percentImmunity    <- (dataCali$numberHadit / 39000000) * 100
+dataWashington           <- subset(rawData, 
+                           rawData$'state' == "WA")
+dataNewJersey            <- subset(rawData, 
+                           rawData$'state' == "NJ")
+dataConnecticut          <- subset(rawData, 
+                           rawData$'state' == "CO")
+dataMass                 <- subset(rawData, 
+                           rawData$'state' == "MA")
+dataTexas                <- subset(rawData, 
+                           rawData$'state' == "TX")
+dataArizona              <- subset(rawData, 
+                           rawData$'state' == "AZ")
 ```
 
 ### Calculating the Totals for the State
@@ -60,6 +103,9 @@ VAtotalDeaths           = head(dataVirginia$death,1)
 FLtotalCases            = head(dataFlorida$positive,1)
 FLtotalHospitalizations = head(dataFlorida$hospitalizedCumulative,1)
 FLtotalDeaths           = head(dataFlorida$death,1)
+NYtotalCases            = head(dataNewYork$positive,1)
+NYtotalHospitalizations = head(dataNewYork$hospitalizedCumulative,1)
+NYtotalDeaths           = head(dataNewYork$death,1)
 ```
 ***Totals for the States:***
 
@@ -73,19 +119,27 @@ FLtotalDeaths           = head(dataFlorida$death,1)
 - Hospitalizations: `r FLtotalHospitalizations`
 - Deaths:           `r FLtotalDeaths`
 
-### Calculate heard immunity rate of Eastern Virginia
+#### New York
+
+- Cases:            `r NYtotalCases`
+- Hospitalizations: `r NYtotalHospitalizations`
+- Deaths:           `r NYtotalDeaths`
+
+### Calculate heard immunity rate of a subset of states
 
 The CDC has released the infection fatility rate (IFR) as 0.26%. Using the total number of deaths in specific states, we can calculate the total number of people who have had COVID in this region.
 
 ```{r}
 VAnumberHadit = VAtotalDeaths / .0026
 FLnumberHadit  = FLtotalDeaths / .0026
+NYnumberHadit  = NYtotalDeaths / .0026
 ```
 
 Individuals who have had Covid: 
 
 - Virginia: `r format(VAnumberHadit, scientific = FALSE)`
 - Florida:  `r format(FLnumberHadit, scientific = FALSE)`
+- New York:  `r format(NYnumberHadit, scientific = FALSE)`
 
 Using the number of individuals who have had COVID divided by the total population of the states, we can calculate the heard immunity threshold of the region.
 
@@ -93,11 +147,13 @@ Total Population in 2020:
 
 - VA: 8,536,000
 - FL: 21,480,000
+- NY: 19,450,000
 
 ***Percentage of individuals who have had Covid:*** 
 
-- Virginia: `r (VAnumberHadit/8536000) * 100`%
-- Florida:  `r (FLnumberHadit/21480000) * 100`%
+- Virginia:  `r (VAnumberHadit/8536000) * 100`%
+- Florida:   `r (FLnumberHadit/21480000) * 100`%
+- New York:  `r (NYnumberHadit/19450000) * 100`%
 
 It looks like we are a couple of percentage points below the threshold needed for herd immunity.
 
@@ -106,64 +162,81 @@ It looks like we are a couple of percentage points below the threshold needed fo
 Some additional data gleaned from the data set:
 ```{r}
 totalCases_vs_Deaths_Plot = ggplot() + 
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = positiveIncrease, color='Virginia')) + 
-  geom_line(data = dataFlorida, aes(x = FixedDate, y = positiveIncrease, color='Florida')) 
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = positiveIncrease, color='Virginia')) + 
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = positiveIncrease, color='Florida')) 
 print(totalCases_vs_Deaths_Plot + 
-        ggtitle("Total Cases Over Time in Virginia and Florida"))
+        ggtitle("Increase in Cases Over Time in Virginia and Florida"))
 ```
 
 
 
 ```{r}
 totalCases_Eastern_Plot <- ggplot() + 
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = positiveIncrease, color='Cases')) + 
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = deathIncrease, color = 'Deaths')) 
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = positiveIncrease, color='Cases')) + 
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = deathIncrease, color = 'Deaths')) 
 print(totalCases_Eastern_Plot + 
-        ggtitle("Total Cases vs. Total Deaths, Virginia"))
+        ggtitle("Daily Cases vs. Daily Deaths, Virginia"))
 
 ```
 
 We can also separate out the graph of deaths related to COVID to more closely examine the trend. Although the number of cases is rising, the number of deaths is not.
 
 
-```{r}
-totalDeaths_Eastern_Plot = ggplot(data = dataVirginia, aes(x = FixedDate, y=deathIncrease, color = "Deaths")) + 
-  geom_line()
+```{r warning=FALSE}
+totalDeaths_Eastern_Plot = 
+  ggplot(data = dataVirginia, aes(x = FixedDate, y=deathIncrease)) + 
+  geom_bar(stat="identity")
 print(totalDeaths_Eastern_Plot + 
-        ggtitle("Total Deaths, Virginia"))
+        ggtitle("Daily Deaths, Virginia"))
 ```
 
 ### Some additional plots for comparison
 
 
-```{r}
+```{r warning=FALSE}
 totalCases_Central_Plot = ggplot() + 
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = positive, color = "Cases")) +
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = recovered, color = "Recovered")) +
-  geom_line(data = dataVirginia, aes(x = FixedDate, y = death, color = "Deaths"))
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = positive, color = "Cases")) +
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = recovered, color = "Recovered")) +
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = death, color = "Deaths"))
   
   
 print(totalCases_Central_Plot + 
         ggtitle("Total Cases, Virginia"))
 ```
-```{r}
+```{r warning=FALSE}
 totalCases_Central_Plot = ggplot() + 
-  geom_line(data = dataFlorida, aes(x = FixedDate, y = positive, color = "Cases")) +
-  geom_line(data = dataFlorida, aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
-  geom_line(data = dataFlorida, aes(x = FixedDate, y = recovered, color = "Recovered")) +
-  geom_line(data = dataFlorida, aes(x = FixedDate, y = death, color = "Deaths"))
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = positive, color = "Cases")) +
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = recovered, color = "Recovered")) +
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = death, color = "Deaths"))
   
   
 print(totalCases_Central_Plot + 
         ggtitle("Total Cases, Florida"))
 ```
-```{r}
+```{r warning=FALSE}
 totalCases_Central_Plot = ggplot() + 
-  geom_line(data = dataNewYork, aes(x = FixedDate, y = positive, color = "Cases")) +
-  geom_line(data = dataNewYork, aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
-  geom_line(data = dataNewYork, aes(x = FixedDate, y = recovered, color = "Recovered")) +
-  geom_line(data = dataNewYork, aes(x = FixedDate, y = death, color = "Deaths"))
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = positive, color = "Cases")) +
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = recovered, color = "Recovered")) +
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = death, color = "Deaths"))
   
   
 print(totalCases_Central_Plot + 
@@ -177,27 +250,154 @@ print(totalCases_Central_Plot +
 
 
 
-```{r}
+```{r warning=FALSE}
 totalCases_Central_Plot = ggplot() + 
-  geom_line(data = dataCali, aes(x = FixedDate, y = positive, color = "Cases")) +
-  geom_line(data = dataCali, aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
-  geom_line(data = dataCali, aes(x = FixedDate, y = recovered, color = "Recovered")) +
-  geom_line(data = dataCali, aes(x = FixedDate, y = death, color = "Deaths"))
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = positive, color = "Cases")) +
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = recovered, color = "Recovered")) +
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = death, color = "Deaths"))
   
   
 print(totalCases_Central_Plot + 
         ggtitle("Total Cases, California"))
 ```
 
-```{r}
+```{r warning=FALSE}
 totalCases_Central_Plot = ggplot() + 
-  geom_line(data = dataWashington, aes(x = FixedDate, y = positive, color = "Cases")) +
-  geom_line(data = dataWashington, aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
-  geom_line(data = dataWashington, aes(x = FixedDate, y = recovered, color = "Recovered")) +
-  geom_line(data = dataWashington, aes(x = FixedDate, y = death, color = "Deaths"))
+  geom_line(data = dataWashington, 
+            aes(x = FixedDate, y = positive, color = "Cases")) +
+  geom_line(data = dataWashington, 
+            aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
+  geom_line(data = dataWashington, 
+            aes(x = FixedDate, y = recovered, color = "Recovered")) +
+  geom_line(data = dataWashington, 
+            aes(x = FixedDate, y = death, color = "Deaths"))
   
   
 print(totalCases_Central_Plot + 
         ggtitle("Total Cases, Washington"))
 ```
 
+
+
+```{r warning=FALSE}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataTexas, 
+            aes(x = FixedDate, y = positive, color = "Cases")) +
+  geom_line(data = dataTexas, 
+            aes(x = FixedDate, y = hospitalizedCumulative, color = "Hospitalized")) +
+  geom_line(data = dataTexas, 
+            aes(x = FixedDate, y = recovered, color = "Recovered")) +
+  geom_line(data = dataTexas, 
+            aes(x = FixedDate, y = death, color = "Deaths"))
+  
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Total Cases, Texas"))
+```
+
+### Analysis
+
+In my opinion, the interesting thing about the data below is that while the number of case is climbing steadily, the number of deaths is leveling out. The media presents the rising number of cases in states like Florida and Texas but if you look at the number of deaths over time in states like New York, New Jersey, Massachusetts and Connecticut, they had a huge number of deaths early on and still top the number of deaths in the other states by a wide margin.  
+```{r}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataWashington, 
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataNewJersey, 
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataTexas,
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataArizona,
+            aes(x = FixedDate, y = positive, color = state)) +
+  geom_line(data = dataUS, 
+            aes(x = FixedDate, y = positive, color = "US Cases"))
+  
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Total Cases, Multiple states"))
+```
+
+
+```{r warning=FALSE}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = death, color = "Virginia Deaths")) +
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = death, color = "New York Deaths")) +
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = death, color = "Florida Deaths")) +
+  geom_line(data = dataWashington, 
+            aes(x = FixedDate, y = death, color = "Washington Deaths")) +
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = death, color = "California Deaths")) +
+  geom_line(data = dataNewJersey, 
+            aes(x = FixedDate, y = death, color = "New Jersey Deaths")) +
+  geom_line(data = dataTexas,
+            aes(x = FixedDate, y = death, color = "Texas Deaths")) +
+  geom_line(data = dataArizona,
+            aes(x = FixedDate, y = death, color = "Arizona Deaths")) +
+  geom_line(data = dataUS, 
+            aes(x = FixedDate, y = death, color = "US Deaths"))
+  
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Total Deaths, Multiple states"))
+```
+
+CNN shows the alarming image below but doesn't really tell the whole story. We need these large number of cases to start rounding out the data and build the herd immunity that New York and the other states built early on.
+
+#![CNN Image](Capture.png)
+
+
+### Percentage Immunity over Time
+
+```{r warning=FALSE}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataVirginia, 
+            aes(x = FixedDate, y = percentImmunity, color = "Percentage Immune")) 
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Herd Immunity, Virginia"))
+```
+
+
+
+```{r warning=FALSE}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataNewYork, 
+            aes(x = FixedDate, y = percentImmunity, color = "Percentage Immune")) 
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Herd Immunity, New York"))
+```
+
+
+```{r warning=FALSE}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataCali, 
+            aes(x = FixedDate, y = percentImmunity, color = "Percentage Immune")) 
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Herd Immunity, California"))
+```
+
+```{r warning=FALSE}
+totalCases_Central_Plot = ggplot() + 
+  geom_line(data = dataFlorida, 
+            aes(x = FixedDate, y = percentImmunity, color = "Percentage Immune")) 
+  
+print(totalCases_Central_Plot + 
+        ggtitle("Herd Immunity, Florida"))
+```

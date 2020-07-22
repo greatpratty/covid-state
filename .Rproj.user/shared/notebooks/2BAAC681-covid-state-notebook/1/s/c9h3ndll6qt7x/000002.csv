@@ -1,31 +1,4 @@
 "0","library(ggplot2)"
-"2","Warning messages:
-"
-"2","1: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
-"
-"2","2: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
-"
-"2","3: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
-"
-"2","4: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
-"
-"2","5: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
-"
-"2","6: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
-"
-"2","7: "
-"2","In readChar(file, size, TRUE) :"
-"2"," truncating string with embedded nuls
+"2","There were 18 warnings (use warnings() to see them)"
+"2","
 "
